@@ -30,8 +30,8 @@ public class GameEngine extends SurfaceView implements Runnable {
     int screenHeight;
     int screenWidth;
 
-    int racketXPosition;
-    int racketYPosition;
+//    int racketXPosition;
+//    int racketYPosition;
 
     int score;
 
@@ -47,6 +47,10 @@ public class GameEngine extends SurfaceView implements Runnable {
     Canvas canvas;
     Paint paintbrush;
 
+    BallSprites ball;
+    RacketSprite racket;
+
+    int lives = 3;
 
 
     // -----------------------------------
@@ -56,8 +60,8 @@ public class GameEngine extends SurfaceView implements Runnable {
     // ----------------------------
     // ## SPRITES
     // ----------------------------
-    int ballXPosition;      // keep track of ball -x
-    int ballYPosition;      // keep track of ball -y
+//    int ballXPosition;      // keep track of ball -x
+//    int ballYPosition;      // keep track of ball -y
 
 
 
@@ -78,17 +82,23 @@ public class GameEngine extends SurfaceView implements Runnable {
         this.screenHeight = h;
 
 
+        ball = new BallSprites(this.screenWidth/2,this.screenHeight/2);
+        racket = new RacketSprite(350,1400);
         this.printScreenInfo();
+
 
         // @TODO: Add your sprites to this section
         // This is optional. Use it to:
         //  - setup or configure your sprites
         //  - set the initial position of your sprites
-        this.ballXPosition = this.screenWidth / 2;
-        this.ballYPosition = this.screenHeight / 2;
+//        this.ballXPosition = this.screenWidth / 2;
+//        this.ballYPosition = this.screenHeight / 2;
 
-        this.racketXPosition = 350;
-        this.racketYPosition = 1400;
+//        this.ball.setBallXPosition(this.screenWidth/2);
+//        this.ball.setBallYPosition(this.screenHeight/2);
+
+//        this.racket.setRacketXPosition() = 350;
+//        this.racket.setRacketYPosition() = 1400;
 
         // @TODO: Any other game setup stuff goes here
 
@@ -149,22 +159,25 @@ public class GameEngine extends SurfaceView implements Runnable {
         // @TODO: Update the position of the sprites
 
         if (directionBallIsMoving == "down") {
-            this.ballYPosition = this.ballYPosition + 25;
+            this.ball.setBallYPosition(this.ball.getBallYPosition()+25);
 
             // if ball hits the floor, then change its direciton
-            if (this.ballYPosition >= this.screenHeight) {
+            if (this.ball.getBallYPosition() >= this.screenHeight) {
                 //Log.d(TAG, "BALL HIT THE FLOOR / OUT OF BOUNDS");
 
                 // Restart the game
                 // Put everything back in their default positions
                 // --------------------
                 // restart the ball
-                this.ballXPosition = this.screenWidth / 2 ;
-                this.ballYPosition = this.screenHeight / 2 ;
+                this.ball.setBallXPosition(this.screenWidth/2);
+                this.ball.setBallYPosition(this.screenHeight/2);
 
                 // restart the racket position
-                this.racketXPosition = 350;
-                this.racketYPosition = 1400;
+//                this.racketXPosition = 350;
+//                this.racketYPosition = 1400;
+
+                this.racket.setRacketXPosition(350);
+                this.racket.setRacketYPosition(1400);
 
                 // restart hte direction
                 directionBallIsMoving = "down";
@@ -175,14 +188,17 @@ public class GameEngine extends SurfaceView implements Runnable {
 //                reset the score
                 this.score = 0;
 
+                lives = lives -1;
+
 
             }
         }
         if (directionBallIsMoving == "up") {
-            this.ballYPosition = this.ballYPosition - 25;
+//            this.ballYPosition = this.ballYPosition - 25;
+            this.ball.setBallYPosition(this.ball.getBallYPosition()-25);
 
             // if ball hits ceiling, then change directions
-            if (this.ballYPosition <= 0 ) {
+            if (this.ball.getBallYPosition() <= 0 ) {
                 // hit upper wall
                 //Log.d(TAG,"BALL HIT CEILING / OUT OF BOUNDS ");
                 directionBallIsMoving = "down";
@@ -192,14 +208,17 @@ public class GameEngine extends SurfaceView implements Runnable {
 
         // calculate the racket's new position
         if (personTapped.contentEquals("right")){
-            this.racketXPosition = this.racketXPosition + 10;
-            if (this.racketXPosition > this.screenWidth - 400) {
+//            this.racketXPosition = this.racketXPosition + 10;
+            this.racket.setRacketXPosition(this.racket.getRacketXPosition()+10);
+
+            if (this.racket.getRacketXPosition() > this.screenWidth - 400) {
                 personTapped = "left";
             }
         }
         else if (personTapped.contentEquals("left")){
-            this.racketXPosition = this.racketXPosition - 10;
-            if (this.racketXPosition <= 0 ) {
+//            this.racketXPosition = this.racketXPosition - 10;
+            this.racket.setRacketXPosition(this.racket.getRacketXPosition()-10);
+            if (this.racket.getRacketXPosition() <= 0 ) {
                 personTapped = "right";
             }
         }
@@ -220,10 +239,9 @@ public class GameEngine extends SurfaceView implements Runnable {
         // When bottom left corner of ball touches racket, then bounce!
         // (ballY+50) = bottom left
         if (
-                (ballYPosition + 50) >= (this.racketYPosition) &&
-                        ballXPosition >= this.racketXPosition &&
-                        ballXPosition <= this.racketXPosition + 400
-        ) {
+                (ball.getBallYPosition() + 50) >= (this.racket.getRacketYPosition()) &&
+                        ball.getBallXPosition() >= this.racket.getRacketXPosition() &&
+                        ball.getBallXPosition() <= this.racket.getRacketXPosition() + 400) {
 
             // ball is touching racket
             Log.d(TAG, "Ball IS TOUCHING RACKET!");
@@ -254,25 +272,34 @@ public class GameEngine extends SurfaceView implements Runnable {
 
             // 1. Draw the ball
             this.canvas.drawRect(
-                    ballXPosition,
-                    ballYPosition,
-                    ballXPosition + 50,
-                    ballYPosition + 50,
+                    ball.getBallXPosition(),
+                    ball.getBallYPosition(),
+                    ball.getBallXPosition() + 50,
+                    ball.getBallYPosition() + 50,
                     paintbrush);
             // this.canvas.drawRect(left, top, right, bottom, paintbrush);
 
             // 1. Draw the ball
             this.canvas.drawRect(
-                    ballXPosition,
-                    ballYPosition,
-                    ballXPosition + 50,
-                    ballYPosition + 50,
+                    ball.getBallXPosition(),
+                    ball.getBallYPosition(),
+                    ball.getBallXPosition() + 50,
+                    ball.getBallYPosition() + 50,
                     paintbrush);
+
+            paintbrush.setTextSize(55);
+            canvas.drawText("Lives Remaining: " + lives,this.screenWidth-500,50,paintbrush);
+
+            if(lives < 1){
+                paintbrush.setTextSize(100);
+                canvas.drawText("Game Over",this.screenWidth/2 - 200,this.screenHeight/2,paintbrush);
+            }
 
 
 //            draw the racket
             paintbrush.setColor(Color.YELLOW);
-            this.canvas.drawRect(this.racketXPosition,this.racketYPosition,this.racketXPosition+400,this.racketYPosition+50,paintbrush);
+            this.canvas.drawRect(this.racket.getRacketXPosition(),this.racket.getRacketYPosition(),
+                    this.racket.getRacketXPosition()+400,this.racket.getRacketYPosition()+50,paintbrush);
 
 
             //@TODO: Draw game statistics (lives, score, etc)
